@@ -208,58 +208,77 @@ class SmartIrManager:  # pylint: disable=too-many-instance-attributes
         self._save_partial_dict()
         sys.exit(2)
 
+    def _get_temp_range(self, ascending: bool) -> list:
+        """Generate temperature range in ascending or descending order.
+
+        Arguments:
+            ascending: If True, generate ascending range; if False, generate descending range
+
+        Returns:
+            list: List of temperatures in the specified order
+        """
+        temp_range = list(range(self.__min_temp, self.__max_temp + 1, self.__precision_temp))
+        if not ascending:
+            temp_range.reverse()
+        return temp_range
+
     def _setup_combinations(self):
         _variable_args = [self.__fan_modes, self.__swing_modes]
         if all(_variable_args):
-            __combinations = product(
-                self.__op_modes,
-                self.__fan_modes,
-                self.__swing_modes,
-                range(self.__min_temp, self.__max_temp + 1, self.__precision_temp),
-            )
-
+            # Generate combinations with alternating temperature directions
             def _return_named_tuple():
-                for _c in __combinations:
-                    yield _CombinationTupleAll(_c[0], _c[1], _c[2], _c[3])
+                config_idx = 0
+                for op_mode in self.__op_modes:
+                    for fan_mode in self.__fan_modes:
+                        for swing_mode in self.__swing_modes:
+                            # Alternate temperature direction for each configuration
+                            temp_range = self._get_temp_range(ascending=(config_idx % 2 == 0))
+                            for temp in temp_range:
+                                yield _CombinationTupleAll(op_mode, fan_mode, swing_mode, temp)
+                            config_idx += 1
 
             self.__all_combinations = _return_named_tuple()
             self.__combination_arguments = _combination_arguments_all
         else:
             if any(_variable_args):
                 if self.__swing_modes:
-                    __combinations = product(
-                        self.__op_modes,
-                        self.__swing_modes,
-                        range(self.__min_temp, self.__max_temp + 1, self.__precision_temp),
-                    )
-
+                    # Generate combinations with alternating temperature directions
                     def _return_named_tuple():
-                        for _c in __combinations:
-                            yield _CombinationTupleSwing(_c[0], _c[1], _c[2])
+                        config_idx = 0
+                        for op_mode in self.__op_modes:
+                            for swing_mode in self.__swing_modes:
+                                # Alternate temperature direction for each configuration
+                                temp_range = self._get_temp_range(ascending=(config_idx % 2 == 0))
+                                for temp in temp_range:
+                                    yield _CombinationTupleSwing(op_mode, swing_mode, temp)
+                                config_idx += 1
 
                     self.__all_combinations = _return_named_tuple()
                     self.__combination_arguments = _combination_arguments_swing
                 else:
-                    __combinations = product(
-                        self.__op_modes,
-                        self.__fan_modes,
-                        range(self.__min_temp, self.__max_temp + 1, self.__precision_temp),
-                    )
-
+                    # Generate combinations with alternating temperature directions
                     def _return_named_tuple():
-                        for _c in __combinations:
-                            yield _CombinationTupleFan(_c[0], _c[1], _c[2])
+                        config_idx = 0
+                        for op_mode in self.__op_modes:
+                            for fan_mode in self.__fan_modes:
+                                # Alternate temperature direction for each configuration
+                                temp_range = self._get_temp_range(ascending=(config_idx % 2 == 0))
+                                for temp in temp_range:
+                                    yield _CombinationTupleFan(op_mode, fan_mode, temp)
+                                config_idx += 1
 
                     self.__all_combinations = _return_named_tuple()
                     self.__combination_arguments = _combination_arguments_fan
             else:
-                __combinations = product(
-                    self.__op_modes, range(self.__min_temp, self.__max_temp + 1, self.__precision_temp)
-                )
-
+                # Generate combinations with alternating temperature directions
                 def _return_named_tuple():
-                    for _c in __combinations:
-                        yield _CombinationTupleNone(_c[0], _c[1])
+                    config_idx = 0
+                    for op_mode in self.__op_modes:
+                        # Alternate temperature direction for each configuration
+                        temp_range = self._get_temp_range(ascending=(config_idx % 2 == 0))
+                        for temp in temp_range:
+                            yield _CombinationTupleNone(op_mode, temp)
+                        config_idx += 1
 
                 self.__all_combinations = _return_named_tuple()
                 self.__combination_arguments = _combination_arguments_none
@@ -457,6 +476,7 @@ class SmartIrManager:  # pylint: disable=too-many-instance-attributes
         """
         _previous_code = None
         _previous_combination: Optional[tuple] = None
+        _no_temp_code_read = False  # Track if we've read code for current no-temp config
         for comb in self.__all_combinations:  # pylint: disable=too-many-nested-blocks
             self.operation_mode = comb.operationModes
             if _DictKeys.FAN_MODES in comb._fields:
@@ -464,6 +484,16 @@ class SmartIrManager:  # pylint: disable=too-many-instance-attributes
             if _DictKeys.SWING_MODES in comb._fields:
                 self.swing_mode = comb.swingModes
             self.temperature = str(comb.temperature)
+
+            # Check for configuration changes BEFORE processing
+            if _previous_combination:
+                for i in range(0, len(comb) - 1):
+                    if _previous_combination[i] != comb[i]:  # pylint: disable=unsubscriptable-object
+                        self.__prompt_event.set()
+                        self._save_partial_dict()
+                        _no_temp_code_read = False  # Reset flag when moving to new config
+                        break  # Important: stop after first difference found
+            _previous_combination = comb
 
             if self._get_dict_value() != '':
                 self.__prompt_event.set()
@@ -473,8 +503,8 @@ class SmartIrManager:  # pylint: disable=too-many-instance-attributes
             if _do_skip.skip:
                 # must read the first temperature and then reuse the same for next combination
                 if _do_skip.field == _DictKeys.TEMPERATURE:
-                    if comb.temperature > self.__min_temp:
-                        # code @ min_temp already recorded
+                    if _no_temp_code_read:
+                        # code already recorded for this config, reuse it
                         self._set_dict_value(_previous_code)
                         continue
 
@@ -492,13 +522,6 @@ class SmartIrManager:  # pylint: disable=too-many-instance-attributes
                             self._set_dict_value(_previous_code)
                             continue
 
-            if _previous_combination:
-                for i in range(0, len(comb) - 1):
-                    if _previous_combination[i] != comb[i]:  # pylint: disable=unsubscriptable-object
-                        self.__prompt_event.set()
-                        self._save_partial_dict()
-            _previous_combination = comb
-
             _combination_str = self._get_combination(comb)
             _countdown(
                 "-" * 30 + f"\nLet's learn IR command of\n{_combination_str}\n"
@@ -511,6 +534,10 @@ class SmartIrManager:  # pylint: disable=too-many-instance-attributes
             if not _code:
                 self._save_partial_dict()
                 raise click.exceptions.UsageError(f"No IR signal learnt for {_combination_str} command within timeout.")
+
+            # Mark that we've read a code for this no-temp configuration
+            if _do_skip.skip and _do_skip.field == _DictKeys.TEMPERATURE:
+                _no_temp_code_read = True
 
             # swing modes must be saved because all temperature need to be listened
             if _do_skip.skip and _do_skip.field == _DictKeys.SWING_MODES:

@@ -95,9 +95,9 @@ class TestSmartIR:
                 '20': _expected_values.expected_odd,
             },
             'heat': {
-                '18': _expected_values.expected_even,
+                '20': _expected_values.expected_even,
                 '19': _expected_values.expected_lower,
-                '20': _expected_values.expected_upper,
+                '18': _expected_values.expected_upper,
             },
         }
 
@@ -171,9 +171,9 @@ class TestSmartIR:
                     '20': _expected_values.expected_odd,
                 },
                 'high': {
-                    '18': _expected_values.expected_even,
+                    '20': _expected_values.expected_even,
                     '19': _expected_values.expected_lower,
-                    '20': _expected_values.expected_upper,
+                    '18': _expected_values.expected_upper,
                 },
             },
             'heat': {
@@ -183,9 +183,9 @@ class TestSmartIR:
                     '20': _expected_values.expected_inc,
                 },
                 'high': {
-                    '18': _expected_values.expected_dec,
+                    '20': _expected_values.expected_dec,
                     '19': _expected_values.expected_odd,
-                    '20': _expected_values.expected_even,
+                    '18': _expected_values.expected_even,
                 },
             },
         }
@@ -262,9 +262,9 @@ class TestSmartIR:
                     '20': _expected_values.expected_odd,
                 },
                 'down': {
-                    '18': _expected_values.expected_even,
+                    '20': _expected_values.expected_even,
                     '19': _expected_values.expected_lower,
-                    '20': _expected_values.expected_upper,
+                    '18': _expected_values.expected_upper,
                 },
             },
             'heat': {
@@ -274,9 +274,9 @@ class TestSmartIR:
                     '20': _expected_values.expected_inc,
                 },
                 'down': {
-                    '18': _expected_values.expected_dec,
+                    '20': _expected_values.expected_dec,
                     '19': _expected_values.expected_odd,
-                    '20': _expected_values.expected_even,
+                    '18': _expected_values.expected_even,
                 },
             },
         }
@@ -384,9 +384,9 @@ class TestSmartIR:
                         '20': _expected_values.expected_odd,
                     },
                     'down': {
-                        '18': _expected_values.expected_even,
+                        '20': _expected_values.expected_even,
                         '19': _expected_values.expected_lower,
-                        '20': _expected_values.expected_upper,
+                        '18': _expected_values.expected_upper,
                     },
                 },
                 'high': {
@@ -396,9 +396,9 @@ class TestSmartIR:
                         '20': _expected_values.expected_inc,
                     },
                     'down': {
-                        '18': _expected_values.expected_dec,
+                        '20': _expected_values.expected_dec,
                         '19': _expected_values.expected_odd,
-                        '20': _expected_values.expected_even,
+                        '18': _expected_values.expected_even,
                     },
                 },
             },
@@ -410,9 +410,9 @@ class TestSmartIR:
                         '20': _expected_values.expected_last,
                     },
                     'down': {
-                        '18': _expected_values.expected_last_lower,
+                        '20': _expected_values.expected_last_lower,
                         '19': _expected_values.expected_inc,
-                        '20': _expected_values.expected_dec,
+                        '18': _expected_values.expected_dec,
                     },
                 },
                 'high': {
@@ -422,9 +422,9 @@ class TestSmartIR:
                         '20': _expected_values.expected_lower,
                     },
                     'down': {
-                        '18': _expected_values.expected_upper,
+                        '20': _expected_values.expected_upper,
                         '19': _expected_values.expected_last,
-                        '20': _expected_values.expected_last_lower,
+                        '18': _expected_values.expected_last_lower,
                     },
                 },
             },
@@ -556,9 +556,9 @@ class TestSmartIR:
                         '20': _expected_values.expected_odd,
                     },
                     'down': {
-                        '18': _expected_values.expected_even,
+                        '20': _expected_values.expected_even,
                         '19': _expected_values.expected_lower,
-                        '20': _expected_values.expected_upper,
+                        '18': _expected_values.expected_upper,
                     },
                 },
                 'high': {
@@ -568,9 +568,9 @@ class TestSmartIR:
                         '20': _expected_values.expected_inc,
                     },
                     'down': {
-                        '18': _expected_values.expected_dec,
+                        '20': _expected_values.expected_dec,
                         '19': _expected_values.expected_odd,
-                        '20': _expected_values.expected_even,
+                        '18': _expected_values.expected_even,
                     },
                 },
             },
@@ -647,9 +647,9 @@ class TestSmartIR:
                         '20': _expected_values.expected_odd,
                     },
                     'down': {
-                        '18': _expected_values.expected_even,
+                        '20': _expected_values.expected_even,
                         '19': _expected_values.expected_lower,
-                        '20': _expected_values.expected_upper,
+                        '18': _expected_values.expected_upper,
                     },
                 },
                 'high': {
@@ -659,9 +659,9 @@ class TestSmartIR:
                         '20': _expected_values.expected_inc,
                     },
                     'down': {
-                        '18': _expected_values.expected_dec,
+                        '20': _expected_values.expected_dec,
                         '19': _expected_values.expected_odd,
-                        '20': _expected_values.expected_even,
+                        '18': _expected_values.expected_even,
                     },
                 },
             },
@@ -740,9 +740,9 @@ class TestSmartIR:
                     '20': _expected_values.expected_odd,
                 },
                 'down': {
-                    '18': _expected_values.expected_even,
+                    '20': _expected_values.expected_even,
                     '19': _expected_values.expected_lower,
-                    '20': _expected_values.expected_upper,
+                    '18': _expected_values.expected_upper,
                 },
             },
             'heat': {
